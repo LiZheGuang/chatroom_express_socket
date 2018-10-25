@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .imBox{
+            width: 100%;
+            border-top: solid 1px #ebebeb;
+            margin-top: 20px;
+        }
+        .postInput{
+            margin-top: 20px;
+        }
+        .imlist{
+            margin-top: 20px;
+        }
+        .itemName{
+            display: flex;
+            padding: 5px;
+            background: #ebebeb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nickName">
+        <!-- <span>请输入您的昵称:</span> -->
+        <!-- <input type="text" id="nickName"> -->
+        <!-- <button id="clickNickName">确认</button> -->
+        <span id="mathName"></span>
+    </div>
+
+    <div class="imBox">
+
+        <div class="postInput">
+            <input type="text" id="inputContent">
+            <button id="clickPostValue">发送内容</button>
+        </div>
+        <!-- 聊天记录 -->
+        <div class="imlist" id="imBox">
+ 
+        </div>
+    </div>
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    let onlData = {
+        name : ""
+    }
+    //dom元素
+    let clickNickName = document.getElementById('clickNickName')
+    let clickPostValue = document.getElementById('clickPostValue')
+    let mathName = document.getElementById('mathName')
+    //   value input
+    let nickName = document.getElementById('nickName')
+    let inputContent = document.getElementById('inputContent')
+    let imBox = document.getElementById('imBox')
+
+    //默认执行的函数
+    var socket = io.connect('http://10.8.201.110:8080/');
+    // 进入页面 获取服务器返回的
+    socket.on('news', function (data) {
+        console.log(data);
+        socket.emit('my other event', { my: 'data' });
+    });
+    // 接受到新的im消息
+    socket.on('groupChat',function(data){
+        console.log('groupChat')
+        console.log(data)
+        let dom = document.createElement('div')
+        dom.className = 'itemName'
+        dom.innerHTML = `<div>`+data.name+` : </div><div>`+data.content+`</div>`
+        imBox.appendChild(dom)
+                        
+    })
+
+    onl()
+
+    // clickNickName.onclick = function () {
+    //     console.log('点击事件nickname')
+    //     let nickNameValue = nickName.value
+    //     console.log(nickNameValue + '名字')
+    // }
+    clickPostValue.onclick = function () {
+        console.log('发送内容')
+        let inputContentValue = inputContent.value
+        console.log(inputContentValue + '内容')
+        socketOn(onlData.name,inputContentValue)
+    }
+
+    function onl() {
+        userName()
+    }
+    function socketOn(keyName,keyContent) {
+        socket.emit('serverEvent', { content: keyContent,name : keyName });       
+    }
+    function userName() {
+        let mathNameAttr = ['风清扬', '令狐冲', '伊泽瑞尔', '东方不败', '青城', '林洛伊']
+        let nameKey = Math.floor(Math.random() * mathNameAttr.length + 0);
+        let nameVal = mathNameAttr[nameKey]
+        // 存入到data数据
+        onlData.name = nameVal
+        var myText = document.createTextNode('你的随机名字:' + nameVal);
+        mathName.appendChild(myText)
+    }
+</script>
+
+</html>
