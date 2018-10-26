@@ -6,11 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
     <style>
         .imBox{
             width: 100%;
             border-top: solid 1px #ebebeb;
-            margin-top: 20px;
+            /* margin-top: 20px; */
         }
         .postInput{
             margin-top: 20px;
@@ -23,35 +32,67 @@
             padding: 5px;
             background: #ebebeb;
         }
+        .alert{
+            margin-top: 20px;
+        }
+        .list-group-item{
+            display: flex;
+            justify-content: space-between;
+        }
     </style>
 </head>
 
-<body>
+<body class="container">
 
-    <div class="nickName">
+    <div class="">
         <!-- <span>请输入您的昵称:</span> -->
         <!-- <input type="text" id="nickName"> -->
         <!-- <button id="clickNickName">确认</button> -->
-        <span id="mathName"></span>
+
+        <div class="row">
+            <div class="col-lg-6">
+                    <div class="alert alert-info" id="mathName" role="alert"></div>
+            </div>
+            
+            <div class="col-lg-6">
+                    <div class="alert alert-success" id="usersMessage" role="alert"></div>
+            </div>
+        </div>
+
+     
     </div>
 
     <div class="imBox">
 
-        <div class="postInput">
-            <input type="text" id="inputContent">
-            <button id="clickPostValue">发送内容</button>
+
+        <div class="row clickPostInput postInput">
+            <div class="col-lg-8">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="inputContent" placeholder="聊天框">
+                    <span class="input-group-btn" id="clickPostValue">
+                        <button class="btn btn-default" type="button">发送消息!</button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                    <ul class="list-group" id="nameItem">
+                            <li class="list-group-item"><b>在线好友</b></li>
+                          </ul>
+            
+                </div>
         </div>
         <!-- 聊天记录 -->
         <div class="imlist" id="imBox">
- 
+
         </div>
     </div>
 
 </body>
 <script src="/socket.io/socket.io.js"></script>
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script>
     let onlData = {
-        name : ""
+        name: ""
     }
     //dom元素
     let clickNickName = document.getElementById('clickNickName')
@@ -61,24 +102,25 @@
     let nickName = document.getElementById('nickName')
     let inputContent = document.getElementById('inputContent')
     let imBox = document.getElementById('imBox')
+    let cookieName = $.cookie('user')
 
     //默认执行的函数
-    var socket = io.connect('http://10.8.201.110:8080/');
+    // var socket = io.connect('http://10.8.201.110:8080/');
     // 进入页面 获取服务器返回的
-    socket.on('news', function (data) {
-        console.log(data);
-        socket.emit('my other event', { my: 'data' });
-    });
-    // 接受到新的im消息
-    socket.on('groupChat',function(data){
-        console.log('groupChat')
-        console.log(data)
-        let dom = document.createElement('div')
-        dom.className = 'itemName'
-        dom.innerHTML = `<div>`+data.name+` : </div><div>`+data.content+`</div>`
-        imBox.appendChild(dom)
-                        
-    })
+    // socket.on('news', function (data) {
+    //     console.log(data);
+    //     socket.emit('my other event', { my: 'data' });
+    // });
+    // // 接受到新的im消息
+    // socket.on('groupChat',function(data){
+    //     console.log('groupChat')
+    //     console.log(data)
+    //     let dom = document.createElement('div')
+    //     dom.className = 'itemName'
+    //     dom.innerHTML = `<div>`+data.name+` : </div><div>`+data.content+`</div>`
+    //     imBox.appendChild(dom)
+
+    // })
 
     onl()
 
@@ -91,24 +133,28 @@
         console.log('发送内容')
         let inputContentValue = inputContent.value
         console.log(inputContentValue + '内容')
-        socketOn(onlData.name,inputContentValue)
+        socketOn(onlData.name, inputContentValue)
     }
 
     function onl() {
         userName()
     }
-    function socketOn(keyName,keyContent) {
-        socket.emit('serverEvent', { content: keyContent,name : keyName });       
+    function socketOn(keyName, keyContent) {
+        socket.emit('serverEvent', { content: keyContent, name: keyName });
     }
+
     function userName() {
-        let mathNameAttr = ['风清扬', '令狐冲', '伊泽瑞尔', '东方不败', '青城', '林洛伊']
-        let nameKey = Math.floor(Math.random() * mathNameAttr.length + 0);
-        let nameVal = mathNameAttr[nameKey]
-        // 存入到data数据
-        onlData.name = nameVal
-        var myText = document.createTextNode('你的随机名字:' + nameVal);
+        // let mathNameAttr = ['风清扬', '令狐冲', '伊泽瑞尔', '东方不败', '青城', '林洛伊']
+        // let nameKey = Math.floor(Math.random() * mathNameAttr.length + 0);
+        // let nameVal = mathNameAttr[nameKey]
+        // // 存入到data数据
+        var myText = document.createTextNode('欢迎你:' + cookieName);
+        onlData.name = cookieName
+
         mathName.appendChild(myText)
     }
 </script>
+<script src="/script/chat.js"></script>
+
 
 </html>
